@@ -1,0 +1,23 @@
+name: template-ML
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - pip
+  - ipykernel
+  - dotenv
+  - scikit-learn
+  - pandas
+  - seaborn 
+  - nilearn
+  - plotly
+  - h5py
+  - deepdish
+  - umap-learn
+  - notebook
+  - imbalanced-learn
+  - openpyxl
+  - tabulate
+  - dcor
+  - pip:
+    - pydra-ml
