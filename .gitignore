@@ -77,7 +77,6 @@ target/
 
 # exclude data from source control by default
 data/
-features/
 model_specs/
 log_files/
 messages/
