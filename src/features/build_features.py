@@ -198,11 +198,42 @@ def column_transform(
             pipe = Pipeline([("std", StandardScaler()), (clf_info[1], clf)])
         return pipe
 
+    def separate_numerical_and_categorical_values(df):
+        """
+        Separates numerical and categorical values into distinct columns.
+
+        Args:
+            df: A Pandas DataFrame containing the data.
+            columns: list of column names to check for mixed data types.
+        Returns:
+            A modified Pandas DataFrame with separate columns for numerical and categorical values.
+        """
+        import pandas as pd
+
+        for col in df.columns:
+            # Check if the column contains both numerical and categorical values
+            if pd.api.types.infer_dtype(df[col])=='mixed-integer':
+                # Split the column into numerical and categorical parts
+                numerical_values = df[col].apply(lambda x: x if isinstance(x, (int, float)) else None)
+                categorical_values = df[col].apply(lambda x: str(x) if isinstance(x, str) else None)
+
+                # Create new columns for numerical and categorical values
+                df['numerical_' + col] = numerical_values
+                df['categorical_' + col] = categorical_values
+
+                # Drop the original column with mixed data types
+                df.drop(col, axis=1, inplace=True)
+
+        return df
+
     # drop `cols_to_ignore`
     dataframe_final = pd.DataFrame()
     if cols_to_ignore is not None:
         dataframe_final = dataframe.drop(cols_to_ignore, axis=1)
         dataframe_to_ignore = dataframe[cols_to_ignore].reset_index(drop=True)
+    
+    # separate numerical and categorical values if mixed type
+    dataframe_final = separate_numerical_and_categorical_values(df=dataframe_final)
 
     # set up numeric pipeline
     transformers = []

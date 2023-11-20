@@ -128,6 +128,23 @@ def features():
                             "StandardScaler",
                             {}
                         ]
+                    ],
+                    "category": [
+                        [
+                            "sklearn.impute",
+                            "SimpleImputer",
+                            {
+                                "strategy": "most_frequent"
+                            }
+                        ],
+                        [
+                            "sklearn.preprocessing",
+                            "OneHotEncoder",
+                            {
+                                "handle_unknown": "ignore",
+                                "sparse": False
+                            }
+                        ]
                     ]
                     }
         }
