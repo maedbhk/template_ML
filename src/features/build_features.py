@@ -108,6 +108,9 @@ def combine_features_and_targets(features, targets, participant_id, participants
     # Combine the features and targets dataframes into a single dataframe.
     combined_df = features.merge(targets)
 
+    # drop duplicates
+    combined_df = combined_df.drop_duplicates().reset_index(drop=True)
+
     # Index the combined dataframe by `participant_id` in participants dataframe (if provided).
     if participants is not None:
         participants_list = participants[participant_id].tolist()
@@ -235,6 +238,9 @@ def column_transform(
     # separate numerical and categorical values if mixed type
     dataframe_final = separate_numerical_and_categorical_values(df=dataframe_final)
 
+    # remove any columns that are all NaN
+    dataframe_final = dataframe_final.dropna(axis=1, how='all')
+
     # set up numeric pipeline
     transformers = []
     for key in clf_info.keys():
@@ -257,6 +263,8 @@ def column_transform(
 
     # make pandas dataframe from transformed data
     df_transformed = pd.DataFrame(arr_transformed, columns=feature_names)
+
+    keyboard
 
     # add `col_to_ignore` back in
     if cols_to_ignore is not None:

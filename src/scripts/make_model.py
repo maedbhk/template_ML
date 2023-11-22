@@ -196,9 +196,7 @@ def run(
                                                     target_info,
                                                     participant_info,
                                                     data_dir
-                                                    )  
-
-    keyboard                                  
+                                                    )                                
 
     # only save out features + spec if not empty
     if not features.empty:
