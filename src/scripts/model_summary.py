@@ -45,7 +45,7 @@ def run(
     
     if not model_dataframe.empty: # only save if dataframe is not empty
         model_dataframe['model'] = model_name
-        train_model.save_to_existing_file(dataframe=model_dataframe, fpath=os.path.join(out_dir, 'all-models-performance.csv'))
+        train_model.save_to_existing_file(dataframe=model_dataframe, fpath=os.path.join(out_dir, 'model-summary.csv'))
         print('model summary saved to disk')
 
 

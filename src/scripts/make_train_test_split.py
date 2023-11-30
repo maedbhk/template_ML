@@ -25,35 +25,13 @@ def run(
     import os
     import pandas as pd
     from sklearn.model_selection import train_test_split
-
-    def _remove_small_groups(dataframe, columns_to_stratify):
-        """Removes the rows from the DataFrame where the group size is less than 2.
-
-        Args:
-            dataframe (pandas.DataFrame): The DataFrame to remove the rows from.
-            columns_to_stratify (list): A list of columns to use for grouping.
-
-        Returns:
-            pandas.DataFrame: The DataFrame with the small groups removed.
-        """
-
-        # Group the DataFrame by the columns_to_stratify columns.
-        grouped_dataframe = dataframe.groupby(columns_to_stratify)
-
-        # Filter the grouped DataFrame to only include groups with at least 2 rows.
-        filtered_dataframe = grouped_dataframe.filter(lambda x: len(x) >= 2)
-
-        # Remove the rows from the DataFrame that are not in the filtered DataFrame.
-        dataframe = dataframe[dataframe.index.isin(filtered_dataframe.index)]
-
-        # Return the filtered DataFrame.
-        return dataframe
+    from src.datasets.data_utils import remove_small_groups
 
     # read in dataframe from path
     df = pd.read_csv(fpath)
     
     # remove small groups from dataframe (otherwise won't be able to stratify)
-    df = _remove_small_groups(dataframe=df, columns_to_stratify=columns_to_stratify)
+    df = remove_small_groups(dataframe=df, columns_to_stratify=columns_to_stratify)
 
     stratify = None
     if len(columns_to_stratify) > 0:

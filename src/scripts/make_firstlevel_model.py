@@ -131,6 +131,7 @@ def make_features(
                     dataframe=df_combined,  
                     clf_info=feature_info['clf_info'],
                     cols_to_ignore=cols_to_ignore,
+                    cols_to_drop=feature_info['cols_to_drop'],
                     threshold=feature_info['threshold'],
                     target_column=target_info['target_column']
                     ).drop(participant_id, axis=1)

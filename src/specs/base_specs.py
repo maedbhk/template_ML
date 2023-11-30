@@ -82,22 +82,6 @@ def targets():
 
     base_info = {
         'upsample': True, # upsample minority target class using SMOTE
-        "clf_info": {
-                    "numeric": [
-                        [
-                            "sklearn.impute",
-                            "SimpleImputer",
-                            {
-                                "strategy": "mean"
-                            }
-                        ],
-                        [
-                            "sklearn.preprocessing",
-                            "StandardScaler",
-                            {}
-                        ]
-                    ]
-                    }
                     }
     spec_info = {'target1':
                     {
@@ -134,7 +118,8 @@ def features():
                             "sklearn.impute",
                             "SimpleImputer",
                             {
-                                "strategy": "most_frequent"
+                                "strategy": "constant" # most_frequent,
+                                "fill_value": "missing"
                             }
                         ],
                         [

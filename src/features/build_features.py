@@ -95,8 +95,8 @@ def combine_features_and_targets(features, targets, participant_id, participants
     """
 
     # Check if the number of columns in the features and targets dataframes match.
-    if features.shape[0] != targets.shape[0]:
-        raise ValueError("The number of rows in the features and targets dataframes must match.")
+    # if features.shape[0] != targets.shape[0]:
+    #     raise ValueError("The number of rows in the features and targets dataframes must match.")
 
     # get the intersection of columns between dataframes and remove `participant_id`
     common_cols = list(features.columns.intersection(targets.columns))
@@ -201,45 +201,11 @@ def column_transform(
             pipe = Pipeline([("std", StandardScaler()), (clf_info[1], clf)])
         return pipe
 
-    def separate_numerical_and_categorical_values(df):
-        """
-        Separates numerical and categorical values into distinct columns.
-
-        Args:
-            df: A Pandas DataFrame containing the data.
-            columns: list of column names to check for mixed data types.
-        Returns:
-            A modified Pandas DataFrame with separate columns for numerical and categorical values.
-        """
-        import pandas as pd
-
-        for col in df.columns:
-            # Check if the column contains both numerical and categorical values
-            if pd.api.types.infer_dtype(df[col])=='mixed-integer':
-                # Split the column into numerical and categorical parts
-                numerical_values = df[col].apply(lambda x: x if isinstance(x, (int, float)) else None)
-                categorical_values = df[col].apply(lambda x: str(x) if isinstance(x, str) else None)
-
-                # Create new columns for numerical and categorical values
-                df['numerical_' + col] = numerical_values
-                df['categorical_' + col] = categorical_values
-
-                # Drop the original column with mixed data types
-                df.drop(col, axis=1, inplace=True)
-
-        return df
-
     # drop `cols_to_ignore`
     dataframe_final = pd.DataFrame()
     if cols_to_ignore is not None:
         dataframe_final = dataframe.drop(cols_to_ignore, axis=1)
         dataframe_to_ignore = dataframe[cols_to_ignore].reset_index(drop=True)
-    
-    # separate numerical and categorical values if mixed type
-    dataframe_final = separate_numerical_and_categorical_values(df=dataframe_final)
-
-    # remove any columns that are all NaN
-    dataframe_final = dataframe_final.dropna(axis=1, how='all')
 
     # set up numeric pipeline
     transformers = []
@@ -263,8 +229,6 @@ def column_transform(
 
     # make pandas dataframe from transformed data
     df_transformed = pd.DataFrame(arr_transformed, columns=feature_names)
-
-    keyboard
 
     # add `col_to_ignore` back in
     if cols_to_ignore is not None:
@@ -304,6 +268,7 @@ def preprocess(
         dataframe,
         clf_info=None,
         cols_to_ignore=None,
+        cols_to_drop=None,
         threshold=False,
         upsample=True,
         target_column=None
@@ -315,6 +280,7 @@ def preprocess(
         dataframe (pd dataframe): pandas dataframe to preprocess, should include X features and y target var, output from `get_features`
         clf_info (dict of lists of scikit-learn classifiers or None): (optional) see `base_specs.features` for an example.
         cols_to_ignore (list of str or None): (optional) columns to ignore in preprocessing. Default is None.
+        cols_to_drop (list of str or None): (optional) columns to drop in preprocessing. Default is None.
         threshold (bool): threshold dataframe based on some fixed criterion. We are using 50% for columns and 20% for rows. If threshold is False, then only NaN entries are removed (no thresholding applied)
         upsample (bool): upsample minority class using SMOTE. default is True
         target_column (str): target column name. default is None
@@ -335,9 +301,9 @@ def preprocess(
             cols_to_ignore=cols_to_ignore
             )
     
-    # do some basic preprocessing
-    dataframe = dataframe.reset_index(drop=True)
-    dataframe = dataframe.loc[:, ~dataframe.columns.str.contains('^Unnamed')]
+    # optionally drop features
+    for col in cols_to_drop:
+        dataframe = dataframe.loc[:, ~dataframe.columns.str.contains(col)]
 
     # upsample minority target class using smote 
     if upsample and target_column:

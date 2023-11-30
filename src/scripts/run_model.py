@@ -1,57 +1,71 @@
-import click
+from src.constants import Defaults
+import os
+import glob
+
 import warnings
 warnings.filterwarnings("ignore")
 
-def run(
-    model_spec, 
-    features,
-    out_dir=None,
-    cache_dir=None
-    ):
-    """ run predictive models using pydra-ml. must provide `model_spec` (model parameters outlined here) json and `features` (csv of features)
+def model_train_summary(model_dir='../bhs_demos', cache_dir=None):
+    """ train model and get model summary of results
 
     Args:
-        model_spec (str): full path to model spec file.
-        features (str): fullpath to features csv (should correspond to filename coded in `model_spec`)
-        out_dir (str or None): full path to model output directory. Default is home directory.
+        model_dir (str): full path to model directory. The following files should be in `model_dir`: `model_spec-{model_name}.json`, `features-{model_spec}.json`.
+        There should only be one model_spec file and one features file.
         cache_dir (str or None): fullpath to cache directory for pydra-ml intermediary outputs. Default is home directory.
-    Returns: 
-        saves (pickled) model to `out_dir`
     """
-    # load libraries
-    import os
-    from src import io
-    from pathlib import Path
-    from pydra_ml.classifier import gen_workflow, run_workflow
+    from src.scripts import train_model, model_summary
 
-    # make `cache_dir`
+    # fullpath to features
+    features = glob.glob(f'{model_dir}/*features*')[0]
+
+    # fullpath to model spec
+    model_spec = glob.glob(f'{model_dir}/*model_spec*')[0]
+
+    # define directory where model results will be saved
     if cache_dir is None:
         cache_dir = os.path.expanduser('~') + '/.cache/pydra-ml/cache-wf/'
 
-    # make `out_dir`
-    if out_dir is None:
-        out_dir = os.path.expanduser('~')
+    # first level - run model
+    train_model.run(
+                    model_spec=model_spec,
+                    features=features,
+                    out_dir=model_dir,
+                    cache_dir=cache_dir
+                    )
 
-    # create `cache_dir` and `out_dir` if it hasn't already been created
-    io.make_dirs(cache_dir)
-    io.make_dirs(out_dir)
+    # get results file
+    results = glob.glob(f'{model_dir}/*out*/*results*.pkl')[0] # should just be one file
 
-    # load model spec json
-    spec_info = io.load_json(model_spec)
+    # second level - make summary
+    model_summary.run(
+                    results, # fullpath to results (.pkl)
+                    model_spec,
+                    out_dir=model_dir,
+                    methods=['feature'] # feature interpretability based on feature or permuation importances
+                    )
 
-    print(f'running {model_spec}...\n', flush=True)
-    print("spec info", spec_info, flush=True)
 
-    # assign fullpath to features csv
-    spec_info['filename'] = features
+def run(model_dir=Dirs.model_dir, models=[], cache_dir=None):
+    """ run model train and model summary
 
-    # change directory to output directory
-    os.chdir(out_dir)
-    print(f'changing directory to {out_dir}')
+    Args:
+        model_dir (str): full path to parent model directory (`../processed/models/`)
+        models (list of str): list of model names to run. Default is all models in `model_dir`
+        cache_dir (str or None): fullpath to cache directory for pydra-ml intermediary outputs. Default is home directory.
+    """
 
-    # run workflow
-    wf = gen_workflow(spec_info, cache_dir=cache_dir)
-    run_workflow(wf, "cf", {"n_procs": 1})
+    # grab all models if list of models is empty
+    if len(models)==0:
+        models = os.listdir(model_dir)
+    
+    # loop over models
+    for model in models:
+        # get fullpath to model directory
+        # model spec file and model features should also be in `model_path`
+        model_path = os.path.join(model_dir, model)
+
+        # train model and get model summary
+        model_train_summary(model_dir=model_path, cache_dir=cache_dir)
 
 
 if __name__ == "__main__":
