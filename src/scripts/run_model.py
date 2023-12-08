@@ -13,7 +13,7 @@ def model_train_summary(model_dir='../bhs_demos', cache_dir=None):
         There should only be one model_spec file and one features file.
         cache_dir (str or None): fullpath to cache directory for pydra-ml intermediary outputs. Default is home directory.
     """
-    from src.scripts import train_model, model_summary
+    from src.scripts import train_model, make_model_summary
 
     # fullpath to features
     features = glob.glob(f'{model_dir}/*features*')[0]
