@@ -22,7 +22,7 @@ def make_secondlevel_spec(model_spec, model_features, feature_importances):
     """
 
     # load files
-    model_features = pd.read_csv(model_features)
+    model_features = pd.read_csv(model_features, engine='python')
     feature_importances = pd.read_csv(feature_importances)
 
     # loop over classifiers (if there are more than one)

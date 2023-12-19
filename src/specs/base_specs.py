@@ -104,7 +104,8 @@ def features():
                             "sklearn.impute",
                             "SimpleImputer",
                             {
-                                "strategy": "mean"
+                                "strategy": "constant",
+                                "fill_value": None
                             }
                         ],
                         [
@@ -119,7 +120,7 @@ def features():
                             "SimpleImputer",
                             {
                                 "strategy": "constant" # most_frequent,
-                                "fill_value": "missing"
+                                "fill_value": None,
                             }
                         ],
                         [

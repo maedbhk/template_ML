@@ -28,7 +28,7 @@ def run(
     from src.datasets.data_utils import remove_small_groups
 
     # read in dataframe from path
-    df = pd.read_csv(fpath)
+    df = pd.read_csv(fpath, engine='python')
     
     # remove small groups from dataframe (otherwise won't be able to stratify)
     df = remove_small_groups(dataframe=df, columns_to_stratify=columns_to_stratify)

@@ -61,7 +61,6 @@ def get_model_metrics(results, spec_info):
         df['data'] = data
         df['splits'] = df.index
         df['clf'] = res[0]['ml_wf.clf_info'][-1][1] # get classifier name (should always be the last list element in list)
-        df = _add_model_parameters(df, spec_info=spec_info)
 
         df_all = pd.concat([df_all, df])
     
@@ -226,7 +225,7 @@ def save_to_existing_file(dataframe, fpath):
     df = pd.DataFrame()
     if os.path.exists(fpath):
         try:
-            df = pd.read_csv(fpath)
+            df = pd.read_csv(fpath, engine='python')
         except:
             pass
     df_out = pd.concat([df, dataframe])
